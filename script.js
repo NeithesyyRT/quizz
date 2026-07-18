@@ -143,7 +143,7 @@ const bonusQuestions = [
 const todayBonusKey = 'Hoje tem?';
 const todayBonusOptions = [
     { value: 'sim', label: 'Sim 💗' },
-    { value: 'não', label: 'Não 💔' },
+    { value: 'não', label: 'Não 😭' },
 ];
 
 /* =========================================================
