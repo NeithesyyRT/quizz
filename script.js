@@ -137,6 +137,13 @@ const bonusQuestions = [
     'Qual foi o nosso momento mais especial até hoje?',
     'O que você acha que eu mais gosto de fazer quando estou com você?',
     'Escreva uma coisa sobre mim que poucas pessoas sabem:',
+    'Hoje tem?',
+];
+
+const todayBonusKey = 'Hoje tem?';
+const todayBonusOptions = [
+    { value: 'sim', label: 'Sim 💗' },
+    { value: 'não', label: 'Não 💔' },
 ];
 
 /* =========================================================
@@ -564,39 +571,97 @@ function renderBonusQuestions() {
         const wrapper = document.createElement('div');
 
         wrapper.className = 'bonus-question';
-        wrapper.innerHTML = `
-      <label for="bonus-answer-${index}">
-        <span class="bonus-question__number" aria-hidden="true">${index + 1}</span>
-        ${escapeHTML(questionText)}
-      </label>
 
-      <textarea
-        id="bonus-answer-${index}"
-        name="bonusAnswer${index}"
-        maxlength="800"
-        placeholder="Escreva sua resposta aqui..."
-        aria-label="${escapeHTML(questionText)}"
-      ></textarea>
-    `;
+        if (questionText === todayBonusKey) {
+            const selectedValue = quizState.bonusAnswers[index] || '';
 
-        const textarea = wrapper.querySelector('textarea');
+            wrapper.innerHTML = `
+        <fieldset class="bonus-yesno" aria-describedby="bonus-alert">
+          <legend>
+            <span class="bonus-question__number" aria-hidden="true">${index + 1}</span>
+            ${escapeHTML(questionText)}
+          </legend>
 
-        textarea.value = quizState.bonusAnswers[index];
+          <div class="bonus-yesno__options" role="radiogroup" aria-label="${escapeHTML(
+              questionText,
+          )}">
+            ${todayBonusOptions
+                .map(
+                    (opt) => `
+              <label class="bonus-yesno-option">
+                <input
+                  type="radio"
+                  name="bonusAnswer${index}"
+                  value="${opt.value}"
+                  ${selectedValue === opt.value ? 'checked' : ''}
+                />
+                <span class="bonus-yesno-option__label">${escapeHTML(
+                    opt.label,
+                )}</span>
+              </label>
+            `,
+                )
+                .join('')}
+          </div>
+        </fieldset>
+      `;
 
-        textarea.addEventListener('input', (event) => {
-            quizState.bonusAnswers[index] = event.target.value;
-            bonusAlert.textContent = '';
-        });
+            const radioButtons = wrapper.querySelectorAll(
+                'input[type="radio"]',
+            );
+
+            radioButtons.forEach((radio) => {
+                radio.addEventListener('change', (event) => {
+                    quizState.bonusAnswers[index] = event.target.value;
+                    bonusAlert.textContent = '';
+                });
+            });
+        } else {
+            wrapper.innerHTML = `
+          <label for="bonus-answer-${index}">
+            <span class="bonus-question__number" aria-hidden="true">${index + 1}</span>
+            ${escapeHTML(questionText)}
+          </label>
+
+          <textarea
+            id="bonus-answer-${index}"
+            name="bonusAnswer${index}"
+            maxlength="800"
+            placeholder="Escreva sua resposta aqui..."
+            aria-label="${escapeHTML(questionText)}"
+          ></textarea>
+        `;
+
+            const textarea = wrapper.querySelector('textarea');
+
+            textarea.value = quizState.bonusAnswers[index];
+
+            textarea.addEventListener('input', (event) => {
+                quizState.bonusAnswers[index] = event.target.value;
+                bonusAlert.textContent = '';
+            });
+        }
 
         bonusQuestionsContainer.appendChild(wrapper);
     });
 }
 
 function saveBonusAnswersFromFields() {
-    const fields = bonusQuestionsContainer.querySelectorAll('textarea');
+    bonusQuestions.forEach((questionText, index) => {
+        if (questionText === todayBonusKey) {
+            const checked = bonusQuestionsContainer.querySelector(
+                `input[name="bonusAnswer${index}"]:checked`,
+            );
 
-    fields.forEach((field, index) => {
-        quizState.bonusAnswers[index] = field.value;
+            quizState.bonusAnswers[index] = checked ? checked.value : '';
+            return;
+        }
+
+        const textarea = bonusQuestionsContainer.querySelector(
+            `textarea#bonus-answer-${index}`,
+        );
+
+        quizState.bonusAnswers[index] = textarea ? textarea.value : '';
     });
 }
 
@@ -772,7 +837,16 @@ function renderReview() {
 
     bonusQuestions.forEach((questionText, index) => {
         const bonusItem = document.createElement('article');
-        const answer = quizState.bonusAnswers[index].trim();
+        const rawAnswer = quizState.bonusAnswers[index] || '';
+
+        const answer =
+            questionText === todayBonusKey
+                ? rawAnswer === 'sim'
+                    ? 'Sim 💗'
+                    : rawAnswer === 'não'
+                      ? 'Não 💔'
+                      : ''
+                : rawAnswer.trim();
 
         bonusItem.className = 'bonus-review-item';
         bonusItem.innerHTML = `
