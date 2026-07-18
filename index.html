@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Quiz romântico e interativo de casal: O Quanto Você Me Conhece?"
+  />
+  <meta name="theme-color" content="#d94f82" />
+
+  <title>💖 O Quanto Você Me Conhece?</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Elementos decorativos do fundo -->
+  <div class="background-decoration" aria-hidden="true">
+    <span class="background-glow background-glow--one"></span>
+    <span class="background-glow background-glow--two"></span>
+    <span class="background-glow background-glow--three"></span>
+  </div>
+
+  <!-- Os corações flutuantes são criados dinamicamente pelo JavaScript -->
+  <div id="floating-hearts" class="floating-hearts" aria-hidden="true"></div>
+
+  <main class="app-shell">
+    <!-- =========================================================
+         TELA INICIAL
+    ========================================================== -->
+    <section
+      id="start-screen"
+      class="screen screen--active"
+      aria-labelledby="start-title"
+    >
+      <div class="glass-card start-card">
+        <div class="hero-icon" aria-hidden="true">💖</div>
+
+        <p class="eyebrow">Um desafio feito com carinho</p>
+
+        <h1 id="start-title">O Quanto Você Me Conhece?</h1>
+
+        <p class="start-description">
+          Será que você realmente presta atenção em tudo o que eu falo? 😏
+        </p>
+
+        <p class="start-rules">
+          Cada resposta certa vale 1 ponto. Não vale pedir dicas nem olhar as
+          respostas!
+        </p>
+
+        <form id="start-form" class="start-form" novalidate>
+          <div class="field-group">
+            <label for="player-name">Digite seu nome</label>
+
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">💕</span>
+
+              <input
+                id="player-name"
+                name="playerName"
+                type="text"
+                maxlength="40"
+                autocomplete="name"
+                placeholder="Seu nome aqui..."
+                aria-describedby="name-error"
+                required
+              />
+            </div>
+
+            <p
+              id="name-error"
+              class="field-message"
+              role="alert"
+              aria-live="polite"
+            ></p>
+          </div>
+
+          <button class="primary-button primary-button--large" type="submit">
+            <span>Começar o Quiz</span>
+            <span aria-hidden="true">💕</span>
+          </button>
+        </form>
+
+        <div class="start-highlights" aria-label="Informações do quiz">
+          <div>
+            <strong>18</strong>
+            <span>Perguntas</span>
+          </div>
+
+          <div>
+            <strong>4</strong>
+            <span>Bônus</span>
+          </div>
+
+          <div>
+            <strong>100%</strong>
+            <span>Romântico</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TELA DO QUIZ
+    ========================================================== -->
+    <section
+      id="quiz-screen"
+      class="screen"
+      aria-labelledby="quiz-question"
+      hidden
+    >
+      <div id="quiz-card" class="glass-card quiz-card">
+        <header class="quiz-header">
+          <div class="quiz-header__top">
+            <div>
+              <p class="eyebrow">Vamos descobrir...</p>
+              <p id="question-counter" class="question-counter">
+                Pergunta 1 de 18
+              </p>
+            </div>
+
+            <div
+              id="question-number-badge"
+              class="question-number-badge"
+              aria-hidden="true"
+            >
+              01
+            </div>
+          </div>
+
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="Progresso do quiz"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+            <span id="progress-bar" class="progress-bar"></span>
+          </div>
+        </header>
+
+        <div id="question-area" class="question-area" aria-live="polite">
+          <div class="question-heading">
+            <span class="question-heart" aria-hidden="true">💗</span>
+            <h2 id="quiz-question"></h2>
+          </div>
+
+          <div
+            id="answer-options"
+            class="answer-options"
+            role="radiogroup"
+            aria-labelledby="quiz-question"
+          ></div>
+        </div>
+
+        <p
+          id="quiz-alert"
+          class="quiz-alert"
+          role="alert"
+          aria-live="assertive"
+        ></p>
+
+        <div class="quiz-actions">
+          <button
+            id="back-button"
+            class="secondary-button"
+            type="button"
+            aria-label="Voltar para a pergunta anterior"
+          >
+            <span aria-hidden="true">←</span>
+            <span>Voltar</span>
+          </button>
+
+          <button
+            id="next-button"
+            class="primary-button"
+            type="button"
+            aria-label="Ir para a próxima pergunta"
+          >
+            <span>Próxima pergunta</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TELA DAS PERGUNTAS BÔNUS
+    ========================================================== -->
+    <section
+      id="bonus-screen"
+      class="screen"
+      aria-labelledby="bonus-title"
+      hidden
+    >
+      <div class="glass-card bonus-card">
+        <header class="bonus-header">
+          <div class="bonus-icon" aria-hidden="true">💕</div>
+
+          <p class="eyebrow">Última parte</p>
+
+          <h2 id="bonus-title">Perguntas Bônus</h2>
+
+          <p>
+            Estas não valem pontos, mas as respostas precisam ser sinceras!
+          </p>
+        </header>
+
+        <form id="bonus-form" class="bonus-form">
+          <div id="bonus-questions"></div>
+
+          <p
+            id="bonus-alert"
+            class="quiz-alert"
+            role="alert"
+            aria-live="assertive"
+          ></p>
+
+          <div class="bonus-actions">
+            <button
+              id="bonus-back-button"
+              class="secondary-button"
+              type="button"
+            >
+              <span aria-hidden="true">←</span>
+              <span>Voltar ao quiz</span>
+            </button>
+
+            <button class="primary-button" type="submit">
+              <span>Finalizar e ver o resultado</span>
+              <span aria-hidden="true">💖</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TELA DE RESULTADO
+    ========================================================== -->
+    <section
+      id="result-screen"
+      class="screen"
+      aria-labelledby="result-title"
+      hidden
+    >
+      <div id="result-card" class="glass-card result-card">
+        <div id="result-celebration-icon" class="result-icon" aria-hidden="true">
+          💖
+        </div>
+
+        <p class="eyebrow">Resultado final</p>
+
+        <h2 id="result-title">
+          <span id="result-name"></span>, veja como você foi!
+        </h2>
+
+        <div
+          id="score-ring"
+          class="score-ring"
+          role="img"
+          aria-label="Pontuação do quiz"
+        >
+          <div class="score-ring__inner">
+            <strong id="score-percentage">0%</strong>
+            <span>de acertos</span>
+          </div>
+        </div>
+
+        <p id="score-summary" class="score-summary">
+          Você acertou 0 de 18 perguntas!
+        </p>
+
+        <p id="result-message" class="result-message"></p>
+
+        <div class="result-stats" aria-label="Resumo da pontuação">
+          <div class="result-stat">
+            <span aria-hidden="true">✅</span>
+            <strong id="correct-count">0</strong>
+            <small>Acertos</small>
+          </div>
+
+          <div class="result-stat">
+            <span aria-hidden="true">❌</span>
+            <strong id="wrong-count">0</strong>
+            <small>Erros</small>
+          </div>
+
+          <div class="result-stat">
+            <span aria-hidden="true">🎯</span>
+            <strong>18</strong>
+            <small>Total</small>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button id="review-button" class="secondary-button" type="button">
+            <span aria-hidden="true">📋</span>
+            <span>Revisar respostas</span>
+          </button>
+
+          <button id="restart-button" class="primary-button" type="button">
+            <span aria-hidden="true">↻</span>
+            <span>Refazer o quiz</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TELA DE REVISÃO
+    ========================================================== -->
+    <section
+      id="review-screen"
+      class="screen"
+      aria-labelledby="review-title"
+      hidden
+    >
+      <div class="glass-card review-card">
+        <header class="review-header">
+          <p class="eyebrow">Confira cada resposta</p>
+          <h2 id="review-title">Revisão do Quiz</h2>
+          <p>
+            Veja o que você respondeu e descubra quais eram as respostas certas.
+          </p>
+        </header>
+
+        <div id="review-list" class="review-list"></div>
+
+        <section
+          class="bonus-review-section"
+          aria-labelledby="bonus-review-title"
+        >
+          <div class="bonus-review-header">
+            <span aria-hidden="true">💕</span>
+            <h3 id="bonus-review-title">Suas respostas bônus</h3>
+          </div>
+
+          <div id="bonus-review-list" class="bonus-review-list"></div>
+        </section>
+
+        <div class="review-actions">
+          <button id="back-to-result-button" class="secondary-button" type="button">
+            <span aria-hidden="true">←</span>
+            <span>Voltar ao resultado</span>
+          </button>
+
+          <button id="review-restart-button" class="primary-button" type="button">
+            <span aria-hidden="true">↻</span>
+            <span>Refazer o quiz</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Área exclusiva para a animação final -->
+  <div
+    id="celebration-container"
+    class="celebration-container"
+    aria-hidden="true"
+  ></div>
+
+  <noscript>
+    <div class="noscript-message">
+      Este quiz precisa do JavaScript ativado para funcionar.
+    </div>
+  </noscript>
+
+  <script src="script.js"></script>
+</body>
+</html>
